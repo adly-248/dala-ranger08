@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { LogIn, AlertCircle } from 'lucide-react'
 
+// Komponen FORM dipisah sendiri karena pakai useSearchParams
 function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,7 +18,7 @@ function LoginForm() {
   useEffect(() => {
     const errorType = searchParams?.get('error')
     if (errorType === 'Callback' || errorType === 'AccessDenied') {
-      setError('Akses ditolak! Email Google kamu belum terdaftar di database anggota Karang Taruna.')
+      setError('Akses ditolak! Email Google kamu belum terdaftar di database anggota.')
     }
   }, [searchParams])
 
@@ -41,14 +42,7 @@ function LoginForm() {
   }
 
   return (
-    <div style={{ maxWidth: 400, width: '100%', padding: 32, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16 }}>
-      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, textAlign: 'center', color: 'var(--text)' }}>
-        Login Pengurus
-      </h1>
-      <p style={{ color: 'var(--text3)', fontSize: 14, marginBottom: 24, textAlign: 'center' }}>
-        Masuk ke panel kepengurusan Karang Taruna Dala Ranger 08
-      </p>
-
+    <>
       {error && (
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: 12, borderRadius: 8, fontSize: 13, marginBottom: 16, lineHeight: 1.5 }}>
           <AlertCircle size={18} style={{ flexShrink: 0, marginTop: 2 }} />
@@ -81,7 +75,7 @@ function LoginForm() {
           type="submit"
           disabled={loading}
           className="btn-primary"
-          style={{ width: '100%', justifyContent: 'center', marginTop: 4, padding: '12px', borderRadius: 8, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, opacity: loading ? 0.7 : 1 }}
+          style={{ width: '100%', justifyContent: 'center', padding: '12px', borderRadius: 8, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, opacity: loading ? 0.7 : 1 }}
         >
           <LogIn size={16} />
           {loading ? 'Masuk...' : 'Masuk'}
@@ -99,10 +93,10 @@ function LoginForm() {
         style={{ width: '100%', padding: '12px', background: '#fff', color: '#000', border: '1px solid #dadce0', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 14 }}
       >
         <svg width="18" height="18" viewBox="0 0 18 18">
-          <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.69-1.55 2.69-3.83 2.69-6.57z" fill="#4285F4" />
-          <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.84.87-3.06.87-2.35 0-4.34-1.58-5.05-3.71H.92v2.32C2.4 15.02 5.46 18 9 18z" fill="#34A853" />
-          <path d="M3.95 10.74c-.18-.54-.28-1.12-.28-1.74s.1-1.2.28-1.74V4.94H.92C.33 6.12 0 7.47 0 9s.33 2.88.92 4.06l3.03-2.32z" fill="#FBBC05" />
-          <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.47.8 11.43 0 9 0 5.46 0 2.4 2.98.92 5.94l3.03 2.32C4.66 5.16 6.65 3.58 9 3.58z" fill="#EA4335" />
+          <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.69-1.55 2.69-3.83 2.69-6.57z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.84.87-3.06.87-2.35 0-4.34-1.58-5.05-3.71H.92v2.32C2.4 15.02 5.46 18 9 18z" fill="#34A853"/>
+          <path d="M3.95 10.74c-.18-.54-.28-1.12-.28-1.74s.1-1.2.28-1.74V4.94H.92C.33 6.12 0 7.47 0 9s.33 2.88.92 4.06l3.03-2.32z" fill="#FBBC05"/>
+          <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.47.8 11.43 0 9 0 5.46 0 2.4 2.98.92 5.94l3.03 2.32C4.66 5.16 6.65 3.58 9 3.58z" fill="#EA4335"/>
         </svg>
         Masuk dengan Google
       </button>
@@ -113,25 +107,27 @@ function LoginForm() {
           Daftar Dulu
         </Link>
       </div>
-    </div>
+    </>
   )
 }
 
-// Fallback saat Suspense loading
-function LoginFallback() {
-  return (
-    <div style={{ maxWidth: 400, width: '100%', padding: 32, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, textAlign: 'center' }}>
-      <div style={{ color: 'var(--text3)', fontSize: 14 }}>Memuat halaman login...</div>
-    </div>
-  )
-}
-
+// Wrapper page — useSearchParams WAJIB dibungkus Suspense di level page
 export default function LoginAdminPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', padding: '24px 16px' }}>
-      <Suspense fallback={<LoginFallback />}>
-        <LoginForm />
-      </Suspense>
+      <div style={{ maxWidth: 400, width: '100%', padding: 32, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, textAlign: 'center', color: 'var(--text)' }}>
+          Login Pengurus
+        </h1>
+        <p style={{ color: 'var(--text3)', fontSize: 14, marginBottom: 24, textAlign: 'center' }}>
+          Masuk ke panel kepengurusan Karang Taruna Dala Ranger 08
+        </p>
+
+        {/* Suspense WAJIB membungkus komponen yang pakai useSearchParams */}
+        <Suspense fallback={<div style={{ textAlign: 'center', padding: 20, color: 'var(--text3)', fontSize: 14 }}>Memuat form...</div>}>
+          <LoginForm />
+        </Suspense>
+      </div>
     </div>
   )
 }

@@ -1,0 +1,166 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {  
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  }
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?
+  role          String    @default("user")
+  phone         String?
+  address       String?
+  birthDate     DateTime?
+  education     String?
+  pangkat       String?  @default("Anggota Aktif")
+  photo         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  memberRegistration MemberRegistration?
+  competitionRegistrations CompetitionRegistration[]
+  notifications Notification[]
+}
+
+model Member {
+  id          String   @id @default(cuid())
+  name        String
+  position    String
+  division    String?
+  photo       String?
+  email       String?
+  phone       String?
+  type        String   @default("member") // ketua, wakil, sekretaris, bendahara, divisi, member
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MemberRegistration {
+  id          String   @id @default(cuid())
+  userId      String?  @unique
+  user        User?    @relation(fields: [userId], references: [id])
+  fullName    String
+  birthDate   DateTime
+  address     String
+  phone       String
+  email       String
+  education   String
+  reason      String   @db.Text
+  status      String   @default("pending") // pending, accepted, rejected
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  location    String
+  date        DateTime
+  category    String   // sosial, olahraga, lingkungan, kewirausahaan
+  photo       String?
+  photos      String?  // JSON array
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model News {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.LongText
+  thumbnail   String?
+  author      String
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Gallery {
+  id          String   @id @default(cuid())
+  title       String
+  url         String   @db.LongText
+  type        String   @default("photo") // photo, video
+  category    String?  @db.Text
+  createdAt   DateTime @default(now())
+}
+
+model Competition {
+  id            String   @id @default(cuid())
+  name          String
+  poster        String?
+  description   String
+  rules         String?
+  prizes        String?  // JSON
+  timeline      String?  // JSON
+  date          DateTime
+  registrationFee Int    @default(0)
+  status        String   @default("open") // open, closed, ongoing, finished
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  registrations CompetitionRegistration[]
+}
+
+model CompetitionRegistration {
+  id              String   @id @default(cuid())
+  competitionId   String
+  competition     Competition @relation(fields: [competitionId], references: [id])
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  teamName        String
+  leaderName      String
+  leaderPhone     String
+  leaderEmail     String
+  leaderAddress   String
+  memberCount     Int
+  members         String   @db.Text
+  status          String   @default("pending") // pending, verified, rejected, passed
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  type        String   @default("info") // info, warning, success
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Sponsor {
+  id        String   @id @default(cuid())
+  name      String
+  logo      String?
+  website   String?
+  createdAt DateTime @default(now())
+}
+
+model SiteSettings {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  value         String
+  updatedAt     DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

@@ -30,6 +30,7 @@ model User {
   memberRegistration MemberRegistration?
   competitionRegistrations CompetitionRegistration[]
   notifications Notification[]
+  @@map("user")
 }
 
 model Member {
@@ -44,6 +45,7 @@ model Member {
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  @@map("member")
 }
 
 model MemberRegistration {
@@ -60,6 +62,8 @@ model MemberRegistration {
   status      String   @default("pending") // pending, accepted, rejected
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  @@map("memberregistration")
+  
 }
 
 model Activity {
@@ -73,6 +77,7 @@ model Activity {
   photos      String?  // JSON array
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  @@map("activity")
 }
 
 model News {
@@ -84,6 +89,7 @@ model News {
   published   Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  @@map("news")
 }
 
 model Gallery {
@@ -93,6 +99,7 @@ model Gallery {
   type        String   @default("photo") // photo, video
   category    String?  @db.Text
   createdAt   DateTime @default(now())
+  @@map("gallery")
 }
 
 model Competition {
@@ -110,6 +117,7 @@ model Competition {
   updatedAt     DateTime @updatedAt
   
   registrations CompetitionRegistration[]
+  @@map("competition")
 }
 
 model CompetitionRegistration {
@@ -128,6 +136,7 @@ model CompetitionRegistration {
   status          String   @default("pending") // pending, verified, rejected, passed
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  @@map("competitionregistration")
 }
 
 model Announcement {
@@ -138,6 +147,7 @@ model Announcement {
   published   Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  @@map("announcement")
 }
 
 model Sponsor {
@@ -146,6 +156,7 @@ model Sponsor {
   logo      String?
   website   String?
   createdAt DateTime @default(now())
+  @@map("sponsor")
 }
 
 model SiteSettings {
@@ -153,6 +164,7 @@ model SiteSettings {
   key           String   @unique
   value         String
   updatedAt     DateTime @updatedAt
+  @@map("sitesettings")
 }
 
 model Notification {
@@ -163,4 +175,5 @@ model Notification {
   message   String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+  @@map("notification")
 }

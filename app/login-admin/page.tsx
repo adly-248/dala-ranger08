@@ -1,5 +1,4 @@
 'use client'
-export const dynamic = "force-dynamic";
 
 import { useState, useEffect, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
@@ -7,42 +6,34 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { LogIn, AlertCircle } from 'lucide-react'
 
-// 1. Buat sub-komponen khusus untuk Form Login yang memakai useSearchParams
 function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-
   const searchParams = useSearchParams()
-  const errorType = searchParams?.get('error')
 
   useEffect(() => {
+    const errorType = searchParams?.get('error')
     if (errorType === 'Callback' || errorType === 'AccessDenied') {
       setError('Akses ditolak! Email Google kamu belum terdaftar di database anggota Karang Taruna.')
     }
-  }, [errorType])
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-
     try {
-      const res = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
-      })
-
+      const res = await signIn('credentials', { redirect: false, email, password })
       if (res?.error) {
         setError('Email atau password salah')
       } else {
         router.push('/')
         router.refresh()
       }
-    } catch (err) {
+    } catch {
       setError('Terjadi kesalahan sistem')
     } finally {
       setLoading(false)
@@ -51,8 +42,12 @@ function LoginForm() {
 
   return (
     <div style={{ maxWidth: 400, width: '100%', padding: 32, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16 }}>
-      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, textAlign: 'center', color: 'var(--text)' }}>Login Pengurus</h1>
-      <p style={{ color: 'var(--text3)', fontSize: 14, marginBottom: 24, textAlign: 'center' }}>Masuk ke panel kepengurusan Karang Taruna Dala Ranger 08</p>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, textAlign: 'center', color: 'var(--text)' }}>
+        Login Pengurus
+      </h1>
+      <p style={{ color: 'var(--text3)', fontSize: 14, marginBottom: 24, textAlign: 'center' }}>
+        Masuk ke panel kepengurusan Karang Taruna Dala Ranger 08
+      </p>
 
       {error && (
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: 12, borderRadius: 8, fontSize: 13, marginBottom: 16, lineHeight: 1.5 }}>
@@ -70,7 +65,6 @@ function LoginForm() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
           />
         </div>
         <div>
@@ -81,19 +75,23 @@ function LoginForm() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
           />
         </div>
-        <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 4, padding: '12px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn-primary"
+          style={{ width: '100%', justifyContent: 'center', marginTop: 4, padding: '12px', borderRadius: 8, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, opacity: loading ? 0.7 : 1 }}
+        >
           <LogIn size={16} />
-          {loading ? 'Masuk...' : 'Masuk Manual'}
+          {loading ? 'Masuk...' : 'Masuk'}
         </button>
       </form>
 
       <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: 10 }}>
-        <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
+        <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
         <span style={{ fontSize: 12, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>atau</span>
-        <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
+        <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
       </div>
 
       <button
@@ -106,24 +104,32 @@ function LoginForm() {
           <path d="M3.95 10.74c-.18-.54-.28-1.12-.28-1.74s.1-1.2.28-1.74V4.94H.92C.33 6.12 0 7.47 0 9s.33 2.88.92 4.06l3.03-2.32z" fill="#FBBC05" />
           <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.47.8 11.43 0 9 0 5.46 0 2.4 2.98.92 5.94l3.03 2.32C4.66 5.16 6.65 3.58 9 3.58z" fill="#EA4335" />
         </svg>
-        Masuk cepat dengan Google
+        Masuk dengan Google
       </button>
 
       <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: 13, color: 'var(--text2)', textAlign: 'center' }}>
-        Belum menjadi anggota terdaftar?{' '}
+        Belum menjadi anggota?{' '}
         <Link href="/register" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>
-          Silahkan Daftar Dulu
+          Daftar Dulu
         </Link>
       </div>
     </div>
   )
 }
 
-// 2. Komponen utama yang diexport dengan membungkus form di dalam Suspense
+// Fallback saat Suspense loading
+function LoginFallback() {
+  return (
+    <div style={{ maxWidth: 400, width: '100%', padding: 32, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, textAlign: 'center' }}>
+      <div style={{ color: 'var(--text3)', fontSize: 14 }}>Memuat halaman login...</div>
+    </div>
+  )
+}
+
 export default function LoginAdminPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', padding: '24px 16px' }}>
-      <Suspense fallback={<div style={{ color: 'var(--text)' }}>Memuat Halaman...</div>}>
+      <Suspense fallback={<LoginFallback />}>
         <LoginForm />
       </Suspense>
     </div>

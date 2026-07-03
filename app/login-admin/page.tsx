@@ -1,30 +1,28 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { LogIn, AlertCircle } from 'lucide-react'
 
-export default function LoginAdminPage() {
+// 1. Buat sub-komponen khusus untuk Form Login yang memakai useSearchParams
+function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  
-  // 🌟 Ambil query params dari URL untuk mendeteksi error callback Google
+
   const searchParams = useSearchParams()
   const errorType = searchParams?.get('error')
 
-  // Tangkap error jika ditolak oleh callback signIn Google di lib/auth.ts
   useEffect(() => {
     if (errorType === 'Callback' || errorType === 'AccessDenied') {
       setError('Akses ditolak! Email Google kamu belum terdaftar di database anggota Karang Taruna.')
     }
   }, [errorType])
 
-  // 1. Handle Login via Email & Password (Credentials)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -51,79 +49,82 @@ export default function LoginAdminPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', padding: '24px 16px' }}>
-      <div style={{ maxWidth: 400, width: '100%', padding: 32, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, textAlign: 'center', color: 'var(--text)' }}>Login Pengurus</h1>
-        <p style={{ color: 'var(--text3)', fontSize: 14, marginBottom: 24, textAlign: 'center' }}>Masuk ke panel kepengurusan Karang Taruna Dala Ranger 08</p>
-        
-        {/* Tampilan Pesan Error Dinamis */}
-        {error && (
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: 12, borderRadius: 8, fontSize: 13, marginBottom: 16, lineHeight: 1.5 }}>
-            <AlertCircle size={18} style={{ flexShrink: 0, marginTop: 2 }} />
-            <span>{error}</span>
-          </div>
-        )}
+    <div style={{ maxWidth: 400, width: '100%', padding: 32, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16 }}>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, textAlign: 'center', color: 'var(--text)' }}>Login Pengurus</h1>
+      <p style={{ color: 'var(--text3)', fontSize: 14, marginBottom: 24, textAlign: 'center' }}>Masuk ke panel kepengurusan Karang Taruna Dala Ranger 08</p>
 
-        {/* FORM LOGIN MANUAL */}
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 16 }}>
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--text)' }}>Email</label>
-            <input 
-              type="email" 
-              placeholder="admin@dalaranger08.id" 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              required 
-              style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--text)' }}>Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••" 
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
-              required 
-              style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
-            />
-          </div>
-          <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 4, padding: '12px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <LogIn size={16} />
-            {loading ? 'Masuk...' : 'Masuk Manual'}
-          </button>
-        </form>
-
-        {/* Garis Pembatas Menuju Opsi Google */}
-        <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: 10 }}>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
-          <span style={{ fontSize: 12, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>atau</span>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
+      {error && (
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: 12, borderRadius: 8, fontSize: 13, marginBottom: 16, lineHeight: 1.5 }}>
+          <AlertCircle size={18} style={{ flexShrink: 0, marginTop: 2 }} />
+          <span>{error}</span>
         </div>
+      )}
 
-        {/* 🌟 TOMBOL LOGIN GOOGLE */}
-        <button 
-          onClick={() => signIn('google', { callbackUrl: '/' })}
-          style={{ width: '100%', padding: '12px', background: '#fff', color: '#000', border: '1px solid #dadce0', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 14 }}
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18">
-            <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.69-1.55 2.69-3.83 2.69-6.57z" fill="#4285F4"/>
-            <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.84.87-3.06.87-2.35 0-4.34-1.58-5.05-3.71H.92v2.32C2.4 15.02 5.46 18 9 18z" fill="#34A853"/>
-            <path d="M3.95 10.74c-.18-.54-.28-1.12-.28-1.74s.1-1.2.28-1.74V4.94H.92C.33 6.12 0 7.47 0 9s.33 2.88.92 4.06l3.03-2.32z" fill="#FBBC05"/>
-            <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.47.8 11.43 0 9 0 5.46 0 2.4 2.98.92 5.94l3.03 2.32C4.66 5.16 6.65 3.58 9 3.58z" fill="#EA4335"/>
-          </svg>
-          Masuk cepat dengan Google
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 16 }}>
+        <div>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--text)' }}>Email</label>
+          <input
+            type="email"
+            placeholder="admin@dalaranger08.id"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
+          />
+        </div>
+        <div>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--text)' }}>Password</label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
+          />
+        </div>
+        <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 4, padding: '12px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <LogIn size={16} />
+          {loading ? 'Masuk...' : 'Masuk Manual'}
         </button>
+      </form>
 
-        {/* 🌟 TAUTAN PENDAFTARAN ANGGOTA TARKA */}
-        <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: 13, color: 'var(--text2)', textAlign: 'center' }}>
-          Belum menjadi anggota terdaftar?{' '}
-          <Link href="/register" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>
-            Silahkan Daftar Dulu
-          </Link>
-        </div>
-
+      <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: 10 }}>
+        <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
+        <span style={{ fontSize: 12, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>atau</span>
+        <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
       </div>
+
+      <button
+        onClick={() => signIn('google', { callbackUrl: '/' })}
+        style={{ width: '100%', padding: '12px', background: '#fff', color: '#000', border: '1px solid #dadce0', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 14 }}
+      >
+        <svg width="18" height="18" viewBox="0 0 18 18">
+          <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.69-1.55 2.69-3.83 2.69-6.57z" fill="#4285F4" />
+          <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.84.87-3.06.87-2.35 0-4.34-1.58-5.05-3.71H.92v2.32C2.4 15.02 5.46 18 9 18z" fill="#34A853" />
+          <path d="M3.95 10.74c-.18-.54-.28-1.12-.28-1.74s.1-1.2.28-1.74V4.94H.92C.33 6.12 0 7.47 0 9s.33 2.88.92 4.06l3.03-2.32z" fill="#FBBC05" />
+          <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.47.8 11.43 0 9 0 5.46 0 2.4 2.98.92 5.94l3.03 2.32C4.66 5.16 6.65 3.58 9 3.58z" fill="#EA4335" />
+        </svg>
+        Masuk cepat dengan Google
+      </button>
+
+      <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: 13, color: 'var(--text2)', textAlign: 'center' }}>
+        Belum menjadi anggota terdaftar?{' '}
+        <Link href="/register" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>
+          Silahkan Daftar Dulu
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+// 2. Komponen utama yang diexport dengan membungkus form di dalam Suspense
+export default function LoginAdminPage() {
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', padding: '24px 16px' }}>
+      <Suspense fallback={<div style={{ color: 'var(--text)' }}>Memuat Halaman...</div>}>
+        <LoginForm />
+      </Suspense>
     </div>
   )
 }

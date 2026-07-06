@@ -2,24 +2,22 @@
 
 import { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { LogIn, AlertCircle } from 'lucide-react'
 
-export default function LoginForm() {
+export default function LoginForm({ errorParam }: { errorParam?: string }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   useEffect(() => {
-    const errorType = searchParams?.get('error')
-    if (errorType === 'Callback' || errorType === 'AccessDenied') {
+    if (errorParam === 'Callback' || errorParam === 'AccessDenied') {
       setError('Akses ditolak! Email Google kamu belum terdaftar di database anggota.')
     }
-  }, [searchParams])
+  }, [errorParam])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

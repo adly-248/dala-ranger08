@@ -1,7 +1,13 @@
-import { Suspense } from 'react'
 import LoginForm from './login-form'
 
-export default function LoginAdminPage() {
+export default async function LoginAdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const resolvedSearchParams = await searchParams
+  const error = typeof resolvedSearchParams.error === 'string' ? resolvedSearchParams.error : undefined
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', padding: '24px 16px' }}>
       <div style={{ maxWidth: 400, width: '100%', padding: 32, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16 }}>
@@ -12,10 +18,7 @@ export default function LoginAdminPage() {
           Masuk ke panel kepengurusan Karang Taruna Dala Ranger 08
         </p>
 
-        {/* Suspense WAJIB membungkus komponen yang pakai useSearchParams */}
-        <Suspense fallback={<div style={{ textAlign: 'center', padding: 20, color: 'var(--text3)', fontSize: 14 }}>Memuat form...</div>}>
-          <LoginForm />
-        </Suspense>
+        <LoginForm errorParam={error} />
       </div>
     </div>
   )
